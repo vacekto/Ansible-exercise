@@ -1,0 +1,14 @@
+{
+  "Name" : "Orthanc DICOM Server",
+  "StorageDirectory" : "/var/lib/orthanc/db",
+  "HttpServerEnabled" : true,
+  "HttpPort" : {{ orthanc_http_port }},
+  "DicomPort" : {{ orthanc_dicom_port }},
+  "DicomScp" : {
+    "Port" : {{ orthanc_dicom_port }},
+    "Host" : "0.0.0.0"
+  },
+  "HttpAllowOrigin" : "*",
+  "AuthenticationEnabled" : false,
+  "DicomAet" : "ORTHANC"
+}

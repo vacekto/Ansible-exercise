@@ -1,1 +1,7 @@
-.venv
+# Ignore generated Orthanc runtime files
+orthanc/data/
+orthanc/config/orthanc.json
+
+# Keep templates and playbooks in source control
+!orthanc/templates/
+!orthanc/templates/orthanc.json.j2

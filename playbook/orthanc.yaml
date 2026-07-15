@@ -2,14 +2,46 @@
 - name: Install Docker and run Orthanc
   hosts: localhost
   become: true
+  vars:
+    orthanc_config_dir: "{{ playbook_dir }}/../orthanc/config"
+    orthanc_data_dir: "{{ playbook_dir }}/../orthanc/data"
+    orthanc_config_file: "{{ orthanc_config_dir }}/orthanc.json"
+    orthanc_image: orthancteam/orthanc:26.6.1
+    orthanc_container_name: orthanc
+    orthanc_http_port: 8042
+    orthanc_dicom_port: 4242
 
   tasks:
+    - name: Ensure Orthanc configuration directory exists
+      ansible.builtin.file:
+        path: "{{ orthanc_config_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Ensure Orthanc data directory exists
+      ansible.builtin.file:
+        path: "{{ orthanc_data_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Write Orthanc configuration file
+      ansible.builtin.template:
+        src: "../orthanc/templates/orthanc.json.j2"
+        dest: "{{ orthanc_config_file }}"
+        mode: "0644"
+
     - name: Run Orthanc container
       community.docker.docker_container:
-        name: orthanc
-        image: orthancteam/orthanc:26.6.1
+        name: "{{ orthanc_container_name }}"
+        image: "{{ orthanc_image }}"
         state: started
         restart_policy: always
+        recreate: true
+
         ports:
-          - "8042:8042"
-          - "4242:4242"
+          - "{{ orthanc_http_port }}:8042"
+          - "{{ orthanc_dicom_port }}:4242"
+
+        volumes:
+          - "{{ orthanc_data_dir }}:/var/lib/orthanc/db"
+          - "{{ orthanc_config_file }}:/etc/orthanc/orthanc.json:ro"
