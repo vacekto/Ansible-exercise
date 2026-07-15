@@ -3,13 +3,7 @@
   hosts: localhost
   become: true
 
-  tasks:     
-    - name: Ensure Docker service is running and enabled
-      ansible.builtin.service:
-        name: docker
-        state: started
-        enabled: true
-
+  tasks:
     - name: Run Orthanc container
       community.docker.docker_container:
         name: orthanc

@@ -1,0 +1,28 @@
+---
+- name: Install dependencies
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Check if Docker is installed
+      ansible.builtin.command:
+        cmd: docker --version
+      register: docker_check
+      changed_when: false
+
+    - name: Install Docker
+      ansible.builtin.package:
+        name: docker.io
+        state: present
+      when: docker_check.rc != 0
+
+    - name: Install Python Docker SDK
+      ansible.builtin.package:
+        name: python3-docker
+        state: present
+
+    - name: Ensure Docker service is running and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
