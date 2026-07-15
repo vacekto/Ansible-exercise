@@ -1,0 +1,21 @@
+---
+- name: Install Docker and run Orthanc
+  hosts: localhost
+  become: true
+
+  tasks:     
+    - name: Ensure Docker service is running and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Run Orthanc container
+      community.docker.docker_container:
+        name: orthanc
+        image: orthancteam/orthanc:26.6.1
+        state: started
+        restart_policy: always
+        ports:
+          - "8042:8042"
+          - "4242:4242"
