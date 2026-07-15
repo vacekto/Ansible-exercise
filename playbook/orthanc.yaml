@@ -6,10 +6,12 @@
     orthanc_config_dir: "{{ playbook_dir }}/../orthanc/config"
     orthanc_data_dir: "{{ playbook_dir }}/../orthanc/data"
     orthanc_config_file: "{{ orthanc_config_dir }}/orthanc.json"
-    orthanc_image: orthancteam/orthanc:26.6.1
-    orthanc_container_name: orthanc
-    orthanc_http_port: 8042
-    orthanc_dicom_port: 4242
+    orthanc_image: "orthancteam/orthanc:{{ lookup('env', 'ORTHANC_IMAGE_VERSION') | default('latest', true) }}"
+    orthanc_http_port_default: 8042
+    orthanc_dicom_port_default: 4242
+    orthanc_http_port: "{{ lookup('env', 'ORTHANC_HTTP_PORT') | default(8042, true) }}"
+    orthanc_dicom_port: "{{ lookup('env', 'ORTHANC_DICOM_PORT') | default(4242, true) }}"
+    orthanc_image_version: "{{ lookup('env', 'ORTHANC_IMAGE_VERSION') | default('latest', true) }}"
 
   tasks:
     - name: Ensure Orthanc configuration directory exists
@@ -32,15 +34,19 @@
 
     - name: Run Orthanc container
       community.docker.docker_container:
-        name: "{{ orthanc_container_name }}"
+        name: orthanc
         image: "{{ orthanc_image }}"
         state: started
         restart_policy: always
         recreate: true
+        env:
+          ORTHANC_HTTP_PORT: "{{ orthanc_http_port }}"
+          ORTHANC_DICOM_PORT: "{{ orthanc_dicom_port }}"
+          ORTHANC_IMAGE_VERSION: "{{ orthanc_image_version }}"
 
         ports:
-          - "{{ orthanc_http_port }}:8042"
-          - "{{ orthanc_dicom_port }}:4242"
+          - "{{ orthanc_http_port }}:{{ orthanc_http_port }}"
+          - "{{ orthanc_dicom_port }}:{{ orthanc_dicom_port }}"
 
         volumes:
           - "{{ orthanc_data_dir }}:/var/lib/orthanc/db"
