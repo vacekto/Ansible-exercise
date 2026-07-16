@@ -9,6 +9,7 @@
         cmd: docker --version
       register: docker_check
       changed_when: false
+      failed_when: false
 
     - name: Install Docker
       ansible.builtin.package:
